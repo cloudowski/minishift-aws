@@ -4,29 +4,37 @@
 
   tasks:
 
-  - name: Determin my public ip
+  - name: Determine my public ip
     command: curl ifconfig.co
     register: my_ip
+  
+  - name: Create terraform vars (minishift.auto.tfvars)
+    copy:
+      dest: "{{ playbook_dir }}/minishift.auto.tfvars"
+      content: |
+        access_ip = "{{ my_ip.stdout }}/32"
+        key_name  = "osaws"
 
   - name: Terraform plan
     terraform:
         project_path: "{{ playbook_dir }}"
         state: planned
         plan_file: minishift.plan
-        variables:
-            access_ip: "{{ my_ip.stdout }}/32"
-            key_name: tch
 
   - name: Terraform apply
     terraform:
         project_path: "{{ playbook_dir }}"
         plan_file: minishift.plan
-        variables:
-            access_ip: "{{ my_ip.stdout }}/32"
-            key_name: tch
     register: tfout
 
-  - debug: var=tfout.outputs.instance_public_dns.value
+  - set_fact:
+      minishift_dns: "{{ tfout.outputs.instance_public_dns.value }}"
 
-  - name: Provision minishift
-    shell: "echo minishift start --remote-ipaddress={{ tfout.outputs.instance_public_dns.value }} --remote-ssh-key=~/.ssh/id_rsa --remote-ssh-user=centos"
+  - debug: var=minishift_dns
+
+  - name: Enable root login
+    shell: |
+        ssh centos@{{ minishift_dns }} "sudo sed -i 's/.* \\(ssh-rsa .*\\)/\1/' /root/.ssh/authorized_keys"
+
+  - name: Print provisioning command for minishift
+    debug: msg="Run this command: minishift start --remote-ipaddress={{ minishift_dns }} --remote-ssh-key=$HOME/.ssh/keys/osaws --remote-ssh-user=root --vm-driver generic --public-hostname={{ minishift_dns }}"

@@ -2,3 +2,5 @@
 minishift.plan
 *.retry
 *.tfstate*
+*.auto.tfvars
+*.swp

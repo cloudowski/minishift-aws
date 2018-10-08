@@ -15,7 +15,7 @@
         plan_file: minishift.plan
         variables:
             access_ip: "{{ my_ip.stdout }}/32"
-            key_name: tch
+            key_name: osaws
     register: tfout
 
   - debug: var=tfout
