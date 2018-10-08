@@ -1,0 +1,32 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+  - name: Determin my public ip
+    command: curl ifconfig.co
+    register: my_ip
+
+  - name: Terraform plan
+    terraform:
+        project_path: "{{ playbook_dir }}"
+        state: planned
+        plan_file: minishift.plan
+        variables:
+            access_ip: "{{ my_ip.stdout }}/32"
+            key_name: tch
+
+  - name: Terraform apply
+    terraform:
+        project_path: "{{ playbook_dir }}"
+        plan_file: minishift.plan
+        variables:
+            access_ip: "{{ my_ip.stdout }}/32"
+            key_name: tch
+    register: tfout
+
+  - debug: var=tfout.outputs.instance_public_dns.value
+
+  - name: Provision minishift
+    shell: "echo minishift start --remote-ipaddress={{ tfout.outputs.instance_public_dns.value }} --remote-ssh-key=~/.ssh/id_rsa --remote-ssh-user=centos"

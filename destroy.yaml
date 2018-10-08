@@ -1,0 +1,21 @@
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+  - name: Determin my public ip
+    command: curl ifconfig.co
+    register: my_ip
+
+  - name: Terraform destroy
+    terraform:
+        project_path: "{{ playbook_dir }}"
+        state: absent
+        plan_file: minishift.plan
+        variables:
+            access_ip: "{{ my_ip.stdout }}/32"
+            key_name: tch
+    register: tfout
+
+  - debug: var=tfout
