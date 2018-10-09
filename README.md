@@ -20,6 +20,13 @@ ansible-playbook create.yaml
 
 * Run minishift command printed in the last ansible step
 
+* Log in to your openshift using **https://EC2_HOSTNAME:8443** - yopur hostname
+  can be found in `terraform output` or in the last phase of minishift
+installation
+
+# Cleaning up
+
+Just run `destroy.yaml` playbook.
 
 # Troubleshooting
 
