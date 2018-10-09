@@ -59,7 +59,7 @@ module "ec2" {
   name                        = "minishift-aws"
   key_name                    = "${var.key_name}"
   ami                         = "${data.aws_ami.centos.id}"
-  instance_type               = "t3.medium"
+  instance_type               = "t3.large"
   cpu_credits                 = "unlimited"
   subnet_id                   = "${element(data.aws_subnet_ids.all.ids, 0)}"
   vpc_security_group_ids      = ["${module.security_group.this_security_group_id}"]

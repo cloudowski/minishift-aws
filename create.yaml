@@ -35,6 +35,11 @@
   - name: Enable root login
     shell: |
         ssh centos@{{ minishift_dns }} "sudo sed -i 's/.* \\(ssh-rsa .*\\)/\1/' /root/.ssh/authorized_keys"
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 2
+    ignore_errors: yes
 
   - name: Print provisioning command for minishift
-    debug: msg="Run this command: minishift start --remote-ipaddress={{ minishift_dns }} --remote-ssh-key=$HOME/.ssh/keys/osaws --remote-ssh-user=root --vm-driver generic --public-hostname={{ minishift_dns }}"
+    debug: msg="minishift start --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/keys/osaws --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --profile aws"
