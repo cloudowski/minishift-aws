@@ -3,6 +3,9 @@
 This setup creates ec2 instance that is ready for a single node minishift
 installation.
 
+There's a [Minikube](https://github.com/cloudowski/minikube-aws) version with
+Kubernetes available too.
+
 # Quickstart
 
 * Initialize terraform
