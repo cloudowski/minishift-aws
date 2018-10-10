@@ -7,13 +7,13 @@
   - name: Determine my public ip
     command: curl ifconfig.co
     register: my_ip
+    check_mode: no
   
   - name: Create terraform vars (minishift.auto.tfvars)
     copy:
       dest: "{{ playbook_dir }}/minishift.auto.tfvars"
       content: |
         access_ip = "{{ my_ip.stdout }}/32"
-        key_name  = "osaws"
 
   - name: Terraform plan
     terraform:
@@ -32,14 +32,17 @@
 
   - debug: var=minishift_dns
 
+  # CentOS doesn't have a group for sharing docker.sock (sic!) and thus we need to use root login
   - name: Enable root login
-    shell: |
-        ssh centos@{{ minishift_dns }} "sudo sed -i 's/.* \\(ssh-rsa .*\\)/\1/' /root/.ssh/authorized_keys"
+    shell: "sed -i 's/.* \\(ssh-rsa .*\\)/\\1/' /root/.ssh/authorized_keys"
+    delegate_to: "{{ minishift_dns }}"
+    remote_user: centos
+    become: true
     register: task_result
     until: task_result.rc == 0
-    retries: 10
-    delay: 2
+    retries: 3
+    delay: 1
     ignore_errors: yes
 
   - name: Print provisioning command for minishift
-    debug: msg="minishift start --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/keys/osaws --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --profile aws"
+    debug: msg="minishift start --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/id_rsa --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --profile aws"

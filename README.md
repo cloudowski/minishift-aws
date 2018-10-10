@@ -37,3 +37,11 @@ Error starting the VM: Error starting stopped host: generic driver does not supp
 ```
 
 remove your `~/.minishift` dir and retry.
+
+## Different ssh key
+
+Just create `mykey.auto.tfvars` file, e.g.
+
+```
+echo 'ssh_pubkey_path = "~/.ssh/my_other_key.pub"' > mykey.auto.tfvars
+```

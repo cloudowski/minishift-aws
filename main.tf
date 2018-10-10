@@ -57,11 +57,16 @@ module "ec2" {
   instance_count = 1
 
   name                        = "minishift-aws"
-  key_name                    = "${var.key_name}"
+  key_name                    = "minishift-aws"
   ami                         = "${data.aws_ami.centos.id}"
-  instance_type               = "t3.large"
+  instance_type               = "${var.instance_type}"
   cpu_credits                 = "unlimited"
   subnet_id                   = "${element(data.aws_subnet_ids.all.ids, 0)}"
   vpc_security_group_ids      = ["${module.security_group.this_security_group_id}"]
   associate_public_ip_address = true
+}
+
+resource "aws_key_pair" "ec2_pubkey" {
+  key_name   = "minishift-aws"
+  public_key = "${file("${var.ssh_pubkey_path}")}"
 }
