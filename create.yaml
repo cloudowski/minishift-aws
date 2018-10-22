@@ -31,6 +31,7 @@
 
   - set_fact:
       minishift_dns: "{{ tfout.outputs.instance_public_dns.value }}"
+      minishift_ip: "{{ tfout.outputs.instance_public_ip.value }}"
 
   - debug: var=minishift_dns
 
@@ -46,5 +47,12 @@
     delay: 3
     ignore_errors: yes
 
+  - name: Fix firewall rule - allow traffic to https
+    firewalld:
+      zone: public
+      service: https
+      permanent: true
+      state: enabled
+
   - name: Print provisioning command for minishift
-    debug: msg="minishift start --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/id_rsa --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --profile aws"
+    debug: msg="minishift start  --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --routing-suffix {{ minishift_ip }}.nip.io --profile aws --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/id_rsa"
