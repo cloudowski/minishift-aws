@@ -48,11 +48,13 @@
     ignore_errors: yes
 
   - name: Fix firewall rule - allow traffic to https
-    firewalld:
-      zone: public
-      service: https
-      permanent: true
-      state: enabled
+    shell: |
+      yum install -y firewalld
+      firewall-cmd --zone=public --add-service=http --permanent
+      firewall-cmd --reload
+    delegate_to: "{{ minishift_dns }}"
+    remote_user: centos
+    become: true
 
   - name: Print provisioning command for minishift
     debug: msg="minishift start  --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --routing-suffix {{ minishift_ip }}.nip.io --profile aws --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/id_rsa"
