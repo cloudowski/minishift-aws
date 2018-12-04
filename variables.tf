@@ -10,3 +10,7 @@ variable "ssh_pubkey_path" {
 variable "instance_type" {
   default = "t3.large"
 }
+
+variable "instance_rootfs_size" {
+  default = "20"
+}

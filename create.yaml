@@ -59,4 +59,4 @@
     become: true
 
   - name: Print provisioning command for minishift
-    debug: msg="minishift start  --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --routing-suffix {{ minishift_ip }}.nip.io --profile aws --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/id_rsa"
+    debug: msg="export MINISHIFT_HOME=~/.minishift-aws;minishift config set openshift-version v3.11.0; minishift addon enable admin-user; minishift addon enable xpaas; minishift addon enable anyuid; minishift start  --openshift-version v3.11.0 --remote-ssh-user root --vm-driver generic --public-hostname {{ minishift_dns }} --routing-suffix {{ minishift_ip }}.nip.io --remote-ipaddress {{ minishift_dns }} --remote-ssh-key $HOME/.ssh/id_rsa"
