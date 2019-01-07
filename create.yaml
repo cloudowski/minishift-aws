@@ -10,7 +10,7 @@
     command: curl ifconfig.co
     register: my_ip
     check_mode: no
-  
+
   - name: Create terraform vars (minishift.auto.tfvars)
     copy:
       dest: "{{ playbook_dir }}/minishift.auto.tfvars"
@@ -34,6 +34,14 @@
       minishift_ip: "{{ tfout.outputs.instance_public_ip.value }}"
 
   - debug: var=minishift_dns
+
+  - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+    wait_for:
+      port: 22
+      host: '{{ minishift_ip }}'
+      search_regex: OpenSSH
+      delay: 10
+    connection: local
 
   # CentOS doesn't have a group for sharing docker.sock (sic!) and thus we need to use root login
   - name: Enable root login
